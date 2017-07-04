@@ -1,6 +1,5 @@
 #include "Fractal.h"
-#include <iostream>
-#include <stdio.h>
+
 Fractal::Fractal()
   :m_fractalMap(nullptr)
 {
@@ -88,28 +87,29 @@ void Fractal::GenerateFractalRecursive(float max_height, int lt_x, int lt_y, int
           top_right = (*this)(br_x, lt_y),
           bottom_right = (*this)(br_x, br_y);
 
-    float random_value = (rand() % (2 * (int)max_height * 100) - max_height * 100) / 100.f;
-
+    //float random_value = (rand() % (2 * (int)max_height * 100) - max_height * 100) / 100.f;
+    float random_value = (rand() % ((int)max_height * 100)) / 100.f;
     // set square array midpoint
     (*this)(midpoint_x, midpoint_y) = (top_left + bottom_left +bottom_right+top_right) / 4 + random_value;
 
-    ClampTerrainHeight((*this)(midpoint_x, midpoint_y), -max_height, max_height);
+  //  ClampTerrainHeight((*this)(midpoint_x, midpoint_y), -max_height, max_height);
 
     // set square's 4 sides midpoints
-    random_value = (rand() % (2 * (int)max_height * 100) - max_height * 100) / 100.f;
-    
-    (*this)(lt_x, midpoint_y) = (top_left + bottom_left + (*this)(midpoint_x, midpoint_y)) / 3 + random_value *powf(2, -m_roughness);
-    (*this)(midpoint_x, lt_y) = (top_left + top_right + (*this)(midpoint_x, midpoint_y)) / 3 + random_value *powf(2, -m_roughness);
-    (*this)(br_x, midpoint_y) = (top_right + bottom_right + (*this)(midpoint_x, midpoint_y)) / 3 + random_value*powf(2, -m_roughness);
-    (*this)(midpoint_x, br_y) = (bottom_left + bottom_right + (*this)(midpoint_x, midpoint_y)) / 3 + random_value*powf(2, -m_roughness);
+    //random_value = (rand() % (2 * (int)max_height * 100) - max_height * 100) / 100.f;
+    random_value = (rand() % ((int)max_height * 100)) / 100.f;
 
-    ClampTerrainHeight((*this)(lt_x, midpoint_y), 0, max_height);
-    ClampTerrainHeight((*this)(midpoint_x, lt_y), 0, max_height);
-    ClampTerrainHeight((*this)(br_x, midpoint_y), 0, max_height);
-    ClampTerrainHeight((*this)(midpoint_x, br_y), 0, max_height);
+    (*this)(lt_x, midpoint_y) = (top_left + bottom_left + (*this)(midpoint_x, midpoint_y)) / 3 + random_value;// *powf(2, -m_roughness);
+    (*this)(midpoint_x, lt_y) = (top_left + top_right + (*this)(midpoint_x, midpoint_y)) / 3 + random_value;// *powf(2, -m_roughness);
+    (*this)(br_x, midpoint_y) = (top_right + bottom_right + (*this)(midpoint_x, midpoint_y)) / 3 + random_value;// *powf(2, -m_roughness);
+    (*this)(midpoint_x, br_y) = (bottom_left + bottom_right + (*this)(midpoint_x, midpoint_y)) / 3 + random_value;// *powf(2, -m_roughness);
+
+    //ClampTerrainHeight((*this)(lt_x, midpoint_y), 0, max_height);
+    //ClampTerrainHeight((*this)(midpoint_x, lt_y), 0, max_height);
+   // ClampTerrainHeight((*this)(br_x, midpoint_y), 0, max_height);
+    //ClampTerrainHeight((*this)(midpoint_x, br_y), 0, max_height);
 
     // generate fractal for the 4 sub-squares
-    float new_max_height = max_height;
+    float new_max_height = max_height*powf(2, -m_roughness);
     GenerateFractalRecursive(new_max_height, lt_x, lt_y, midpoint_x, midpoint_y);
     GenerateFractalRecursive(new_max_height, lt_x, midpoint_y, midpoint_x, br_y);
     GenerateFractalRecursive(new_max_height, midpoint_x, lt_y, br_x, midpoint_y);
