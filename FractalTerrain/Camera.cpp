@@ -1,6 +1,6 @@
 #include "Camera.h"
 
-
+using namespace DirectX;
 
 Camera::Camera():
   m_posx(0.f), m_posy(0.f), m_posz(0.f),

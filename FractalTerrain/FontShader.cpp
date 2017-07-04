@@ -1,6 +1,6 @@
 #include "FontShader.h"
 
-
+using namespace DirectX;
 
 FontShader::FontShader()
 {

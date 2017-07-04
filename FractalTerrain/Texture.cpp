@@ -1,6 +1,6 @@
 #include "Texture.h"
 
-
+using namespace DirectX;
 
 Texture::Texture():
   m_texture(nullptr)

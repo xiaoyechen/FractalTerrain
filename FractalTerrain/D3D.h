@@ -11,8 +11,6 @@
 
 #include "stdafx.h"
 
-using namespace DirectX;
-
 class D3D
 {
 public:
@@ -22,10 +20,12 @@ public:
   bool Initialize(int, int, bool, HWND, bool, float, float);
   ID3D11Device* GetDevice();
   ID3D11DeviceContext* GetDeviceContext();
-  void GetWorldMatrix(XMMATRIX &);
-  void GetProjectionMatrix(XMMATRIX&);
-  void GetOrthoMatrix(XMMATRIX&);
+  void GetWorldMatrix(DirectX::XMMATRIX &);
+  void GetProjectionMatrix(DirectX::XMMATRIX&);
+  void GetOrthoMatrix(DirectX::XMMATRIX&);
   void GetVideocardInfo(char*, int&);
+  void EnableWireframe();
+  void DisableWireframe();
   void BeginScene(float, float, float, float);
   void EndScene();
   void Shutdown();
@@ -41,8 +41,10 @@ private:
   ID3D11DepthStencilState* m_depthStencilState;
   ID3D11DepthStencilView* m_depthStencilView;
   ID3D11RasterizerState* m_rasterState;
-  XMMATRIX m_projection_matrix;
-  XMMATRIX m_world_matrix;
-  XMMATRIX m_ortho_matrix;
+  ID3D11RasterizerState* m_rasterStateWireframe;
+  ID3D11RasterizerState* m_rasterStateNoCulling;
+  DirectX::XMMATRIX m_projection_matrix;
+  DirectX::XMMATRIX m_world_matrix;
+  DirectX::XMMATRIX m_ortho_matrix;
 };
 

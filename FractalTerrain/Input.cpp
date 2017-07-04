@@ -53,7 +53,7 @@ bool Input::Initialize(HINSTANCE hinst, HWND hwnd, int w, int h)
   if (FAILED(result)) return false;
 
   m_f1_released = true;
- // m_f2_released = true;
+  m_f2_released = true;
 
   return true;
 }
@@ -167,6 +167,24 @@ bool Input::IsF1Toggled()
   else
   {
     m_f1_released = true;
+  }
+
+  return false;
+}
+
+bool Input::IsF2Toggled()
+{
+  if (m_keyboardState[DIK_F2] & 0x80)
+  {
+    if (m_f2_released)
+    {
+      m_f2_released = false;
+      return true;
+    }
+  }
+  else
+  {
+    m_f2_released = true;
   }
 
   return false;

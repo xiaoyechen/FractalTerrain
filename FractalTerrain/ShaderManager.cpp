@@ -1,6 +1,6 @@
 #include "ShaderManager.h"
 
-
+using namespace DirectX;
 
 ShaderManager::ShaderManager():
   m_colorShader(nullptr),

@@ -1,7 +1,6 @@
 #pragma once
 #include <DirectXMath.h>
 #include "stdafx.h"
-using namespace DirectX;
 
 class Camera
 {
@@ -13,11 +12,11 @@ public:
   void SetRotation(float, float, float);
   void Render();
   void RenderBaseViewMatrix();
-  void GetViewMatrix(XMMATRIX&);
-  void GetBaseViewMatrix(XMMATRIX&);
+  void GetViewMatrix(DirectX::XMMATRIX&);
+  void GetBaseViewMatrix(DirectX::XMMATRIX&);
 private:
   float m_posx, m_posy, m_posz;
   float m_rotx, m_roty, m_rotz;
-  XMMATRIX m_view_matrix, m_baseview_matrix;
+  DirectX::XMMATRIX m_view_matrix, m_baseview_matrix;
 };
 

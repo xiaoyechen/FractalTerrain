@@ -1,6 +1,6 @@
 #include "UI.h"
 
-
+using namespace DirectX;
 
 UI::UI():
   m_text(nullptr),

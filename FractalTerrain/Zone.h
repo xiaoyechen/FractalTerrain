@@ -29,6 +29,6 @@ private:
   Camera* m_cam;
   Position* m_pos;
   Terrain* m_terrain;
-  bool m_displayUI;
+  bool m_displayUI, m_wireframeMode;
 };
 

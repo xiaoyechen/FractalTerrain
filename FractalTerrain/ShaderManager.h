@@ -4,7 +4,6 @@
 #include "stdafx.h"
 #include "ColorShader.h"
 #include "FontShader.h"
-using namespace DirectX;
 
 class ShaderManager
 {
@@ -13,8 +12,8 @@ public:
   ~ShaderManager();
 
   bool Initialize(ID3D11Device*, HWND);
-  bool RenderColorShader(ID3D11DeviceContext*, int, XMMATRIX&, XMMATRIX&, XMMATRIX&);
-  bool RenderFontShader(ID3D11DeviceContext*, int, const XMMATRIX&, const XMMATRIX&, const XMMATRIX&, ID3D11ShaderResourceView*, XMFLOAT4);
+  bool RenderColorShader(ID3D11DeviceContext*, int, DirectX::XMMATRIX&, DirectX::XMMATRIX&, DirectX::XMMATRIX&);
+  bool RenderFontShader(ID3D11DeviceContext*, int, const DirectX::XMMATRIX&, const DirectX::XMMATRIX&, const DirectX::XMMATRIX&, ID3D11ShaderResourceView*, DirectX::XMFLOAT4);
   void Shutdown();
 private:
   ColorShader* m_colorShader;

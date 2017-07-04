@@ -1,9 +1,11 @@
 #include "Terrain.h"
-
+using namespace DirectX;
 
 Terrain::Terrain():
   m_vertexBuffer(nullptr),
-  m_idxBuffer(nullptr)
+  m_idxBuffer(nullptr),
+  m_heightMap(nullptr),
+  m_terrainModel(nullptr)
 {
 }
 
@@ -12,17 +14,34 @@ Terrain::~Terrain()
 {
 }
 
-bool Terrain::Initialize(ID3D11Device *device)
+bool Terrain::Initialize(ID3D11Device *device, char* setup_filename)
 {
-  if (InitializeBuffers(device))
-    return true;
-  else
+  if (!LoadSetupFile(setup_filename))
     return false;
+
+  if (!LoadHeightMap())
+    return false;
+
+  SetTerrainCoordinates();
+
+  if (!BuildTerrainModel())
+    return false;
+
+  ShutdownHeightMap();
+
+  if (!InitializeBuffers(device))
+    return false;
+
+  ShutdownTerrainModel();
+
+  return true;
 }
 
 void Terrain::Shutdown()
 {
   ShutdownBuffers();
+  ShutdownTerrainModel();
+  ShutdownHeightMap();
 }
 
 bool Terrain::Render(ID3D11DeviceContext *device_context)
@@ -36,6 +55,11 @@ int Terrain::GetIdxCount()
   return m_idxCount;
 }
 
+int Terrain::GetTerrainHeight()
+{
+  return m_terrainHeight;
+}
+
 bool Terrain::InitializeBuffers(ID3D11Device *device)
 {
 
@@ -43,12 +67,9 @@ bool Terrain::InitializeBuffers(ID3D11Device *device)
   D3D11_SUBRESOURCE_DATA vertexData, idxData;
   HRESULT hr;
 
-  int terrain_w = 256, 
-      terrain_h = 256;
-
   XMFLOAT4 color = XMFLOAT4(1.f, 1.f, 1.f, 1.f);
 
-  m_vertexCount = (terrain_w - 1) * (terrain_h - 1) * 8;
+  m_vertexCount = (m_terrainWidth - 1) * (m_terrainHeight - 1) * 6;
   m_idxCount = m_vertexCount;
 
   Vertex_T* vertices = new Vertex_T[m_vertexCount];
@@ -57,78 +78,13 @@ bool Terrain::InitializeBuffers(ID3D11Device *device)
   unsigned long* indices = new unsigned long[m_idxCount];
   if (!indices) return false;
 
-  int idx = 0;
-
-  float pos_x, pos_z;
-  for (int j = 0; j < terrain_h - 1; ++j)
+  for (int i = 0; i < m_vertexCount; ++i)
   {
-    for (int i = 0; i < terrain_w - 1; ++i)
-    {
-      // line1 upper left
-      pos_x = (float)i;
-      pos_z = (float)(j + 1);
-
-      vertices[idx].pos = XMFLOAT3(pos_x, 0.f, pos_z);
-      vertices[idx].color = color;
-      indices[idx] = idx;
-      ++idx;
-
-      // line1 upper right
-      pos_x = (float)(i + 1);
-      pos_z = (float)(j + 1);
-
-      vertices[idx].pos = XMFLOAT3(pos_x, 0.f, pos_z);
-      vertices[idx].color = color;
-      indices[idx] = idx;
-      ++idx;
-
-      // line2 upper right (same as previous
-      vertices[idx].pos = XMFLOAT3(pos_x, 0.f, pos_z);
-      vertices[idx].color = color;
-      indices[idx] = idx;
-      ++idx;
-
-      // line2 bottom right
-      pos_x = (float)(i + 1);
-      pos_z = (float)j;
-
-      vertices[idx].pos = XMFLOAT3(pos_x, 0.f, pos_z);
-      vertices[idx].color = color;
-      indices[idx] = idx;
-      ++idx;
-
-      // line3 bottom right (same as previous
-      vertices[idx].pos = XMFLOAT3(pos_x, 0.f, pos_z);
-      vertices[idx].color = color;
-      indices[idx] = idx;
-      ++idx;
-
-      // line3 bottom left
-      pos_x = (float)i;
-      pos_z = (float)j;
-
-      vertices[idx].pos = XMFLOAT3(pos_x, 0.f, pos_z);
-      vertices[idx].color = color;
-      indices[idx] = idx;
-      ++idx;
-
-      // line4 bottom left (same as previous
-      vertices[idx].pos = XMFLOAT3(pos_x, 0.f, pos_z);
-      vertices[idx].color = color;
-      indices[idx] = idx;
-      ++idx;
-
-      // line4 upper left
-      pos_x = (float)i;
-      pos_z = (float)(j + 1);
-
-      vertices[idx].pos = XMFLOAT3(pos_x, 0.f, pos_z);
-      vertices[idx].color = color;
-      indices[idx] = idx;
-      ++idx;
-    }
+    vertices[i].pos = XMFLOAT3(m_terrainModel[i].x, m_terrainModel[i].y, m_terrainModel[i].z);
+    vertices[i].color = color;
+    indices[i] = i;
   }
-
+  
   // create vertex buffer
   vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
   vertexBufferDesc.ByteWidth = sizeof(Vertex_T)* m_vertexCount;
@@ -183,5 +139,160 @@ void Terrain::RenderBuffers(ID3D11DeviceContext *device_context)
 
   device_context->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
   device_context->IASetIndexBuffer(m_idxBuffer, DXGI_FORMAT_R32_UINT, 0);
-  device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+  device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
+
+bool Terrain::LoadSetupFile(char *setup_filename)
+{
+  std::ifstream ifs;
+  char input;
+
+  ifs.open(setup_filename);
+  
+  if (ifs.fail()) return false;
+  
+  ifs.get(input);
+  while (input != ':')
+    ifs.get(input);
+
+  ifs >> m_terrainHeight;
+
+  ifs.get(input);
+  while (input != ':')
+    ifs.get(input);
+
+  ifs >> m_terrainWidth;
+
+  ifs.get(input);
+  while (input != ':')
+    ifs.get(input);
+
+  ifs >> m_heightScale;
+
+  ifs.get(input);
+  while (input != ':')
+    ifs.get(input);
+
+  ifs >> m_terrainRoughness;
+
+  ifs.close();
+
+  return true;
+}
+
+bool Terrain::LoadHeightMap()
+{
+  Fractal fractal_heightmap;
+  if (!fractal_heightmap.Initialize(m_terrainWidth, m_terrainHeight, MAX_HEIGHT_DEFAULT, m_terrainRoughness))
+    return false;
+
+  if (!fractal_heightmap.Generate())
+    return false;
+
+  m_heightMap = new HeightMap_T[m_terrainWidth*m_terrainHeight];
+  if (!m_heightMap) return false;
+
+  int i, j;
+  for (j = 0; j < m_terrainHeight; ++j)
+  {
+    for (i = 0; i < m_terrainWidth; ++i)
+    {
+      m_heightMap[j*m_terrainWidth + i].y = fractal_heightmap(j, i);
+    }
+  }
+
+  fractal_heightmap.Release();
+
+  return true;
+}
+
+void Terrain::ShutdownHeightMap()
+{
+  if (m_heightMap)
+  {
+    delete[] m_heightMap;
+    m_heightMap = 0;
+  }
+}
+
+void Terrain::SetTerrainCoordinates()
+{
+  int i, j, idx;
+
+  for (j = 0; j < m_terrainHeight; ++j)
+  {
+    for (i = 0; i < m_terrainWidth; ++i)
+    {
+      idx = j*m_terrainWidth + i;
+      m_heightMap[idx].x = (float)i;
+      m_heightMap[idx].z = m_terrainHeight - 1 -(float)j;
+
+      m_heightMap[idx].y /= m_heightScale;
+    }
+  }
+}
+
+bool Terrain::BuildTerrainModel()
+{
+  m_vertexCount = (m_terrainWidth - 1) * (m_terrainHeight - 1) * 6;
+
+  m_terrainModel = new Model_T[m_vertexCount];
+  if (!m_terrainModel) return false;
+
+  int idx = 0, i, j, top_left, top_right, bottom_left, bottom_right;
+
+  for (j = 0; j < m_terrainHeight - 1; ++j)
+  {
+    for (i = 0; i < m_terrainWidth - 1; ++i)
+    {
+      top_left = m_terrainWidth*j + i;
+      top_right = m_terrainWidth*j + (i + 1);
+      bottom_left = m_terrainWidth*(j + 1) + i;
+      bottom_right = m_terrainWidth*(j + 1) + (i + 1);
+
+      // 2 triangles for 1 square
+      // triangle1
+      m_terrainModel[idx].x = m_heightMap[top_left].x;
+      m_terrainModel[idx].y = m_heightMap[top_left].y;
+      m_terrainModel[idx].z = m_heightMap[top_left].z;
+      ++idx;
+
+      m_terrainModel[idx].x = m_heightMap[top_right].x;
+      m_terrainModel[idx].y = m_heightMap[top_right].y;
+      m_terrainModel[idx].z = m_heightMap[top_right].z;
+      ++idx;
+
+      m_terrainModel[idx].x = m_heightMap[bottom_left].x;
+      m_terrainModel[idx].y = m_heightMap[bottom_left].y;
+      m_terrainModel[idx].z = m_heightMap[bottom_left].z;
+      ++idx;
+
+      // triangle2
+      m_terrainModel[idx].x = m_heightMap[bottom_left].x;
+      m_terrainModel[idx].y = m_heightMap[bottom_left].y;
+      m_terrainModel[idx].z = m_heightMap[bottom_left].z;
+      ++idx;
+
+      m_terrainModel[idx].x = m_heightMap[top_right].x;
+      m_terrainModel[idx].y = m_heightMap[top_right].y;
+      m_terrainModel[idx].z = m_heightMap[top_right].z;
+      ++idx;
+
+      m_terrainModel[idx].x = m_heightMap[bottom_right].x;
+      m_terrainModel[idx].y = m_heightMap[bottom_right].y;
+      m_terrainModel[idx].z = m_heightMap[bottom_right].z;
+      ++idx;
+    }
+  }
+
+  return true;
+}
+
+void Terrain::ShutdownTerrainModel()
+{
+  if (m_terrainModel) 
+  {
+    delete[] m_terrainModel;
+    m_terrainModel = 0;
+  }
 }

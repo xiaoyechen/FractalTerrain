@@ -93,9 +93,9 @@ void Position::MoveUp(bool keydown)
 {
   if (keydown)
   {
-    m_upwardSpeed += m_frametime*1.5f;
-    if (m_upwardSpeed > (m_frametime*15.f))
-      m_upwardSpeed = m_frametime*15.f;
+    m_upwardSpeed += m_frametime*1.f;
+    if (m_upwardSpeed > (m_frametime*10.f))
+      m_upwardSpeed = m_frametime*10.f;
   }
   else
   {
@@ -111,9 +111,9 @@ void Position::MoveDown(bool keydown)
 {
   if (keydown)
   {
-    m_downwardSpeed += m_frametime*1.5f;
-    if (m_downwardSpeed > (m_frametime*15.f))
-      m_downwardSpeed = m_frametime*15.f;
+    m_downwardSpeed += m_frametime*1.f;
+    if (m_downwardSpeed > (m_frametime*10.f))
+      m_downwardSpeed = m_frametime*10.f;
   }
   else
   {

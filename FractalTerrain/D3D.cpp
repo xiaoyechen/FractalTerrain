@@ -1,5 +1,5 @@
 #include "D3D.h"
-
+using namespace DirectX;
 
 
 D3D::D3D():
@@ -10,7 +10,9 @@ D3D::D3D():
   m_depthStencilBuffer(0),
   m_depthStencilState(0),
   m_depthStencilView(0),
-  m_rasterState(0)
+  m_rasterState(0),
+  m_rasterStateWireframe(0),
+  m_rasterStateNoCulling(0)
 {
 }
 
@@ -213,6 +215,17 @@ bool D3D::Initialize(int width, int height, bool vsync, HWND hwnd, bool fullscre
 
   m_deviceContext->RSSetState(m_rasterState);
 
+  raster_desc.CullMode = D3D11_CULL_NONE;
+
+  hr = m_device->CreateRasterizerState(&raster_desc, &m_rasterStateNoCulling);
+  if (FAILED(hr)) return false;
+
+  raster_desc.CullMode = D3D11_CULL_BACK;
+  raster_desc.FillMode = D3D11_FILL_WIREFRAME;
+
+  hr = m_device->CreateRasterizerState(&raster_desc, &m_rasterStateWireframe);
+  if (FAILED(hr)) return false;
+
   // set up viewport for rendering
   viewport.Width = (float)width;
   viewport.Height = (float)height;
@@ -265,6 +278,16 @@ void D3D::GetVideocardInfo(char *card_name, int &memory)
   memory = m_videocardMemory;
 }
 
+void D3D::EnableWireframe()
+{
+  m_deviceContext->RSSetState(m_rasterStateWireframe);
+}
+
+void D3D::DisableWireframe()
+{
+  m_deviceContext->RSSetState(m_rasterState);
+}
+
 void D3D::BeginScene(float red, float green, float blue, float alpha)
 {
   float color[4];
@@ -292,6 +315,8 @@ void D3D::Shutdown()
     m_swapChain->SetFullscreenState(false, NULL);
   
   SafeRelease(m_rasterState);
+  SafeRelease(m_rasterStateWireframe);
+  SafeRelease(m_rasterStateNoCulling);
   SafeRelease(m_depthStencilView);
   SafeRelease(m_depthStencilState);
   SafeRelease(m_depthStencilBuffer);

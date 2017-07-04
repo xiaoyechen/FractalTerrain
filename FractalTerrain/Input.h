@@ -26,6 +26,7 @@ public:
   bool IsPgupPressed();
   bool IsPgdownPressed();
   bool IsF1Toggled();
+  bool IsF2Toggled();
   bool IsEscapePressed();
 private:
   bool ReadKeyboard();
@@ -39,6 +40,6 @@ private:
   DIMOUSESTATE m_mouseState;
   int m_width, m_height;
   int m_mouseX, m_mouseY;
-  bool m_f1_released;// , m_f2_released;
+  bool m_f1_released, m_f2_released;
 };
 

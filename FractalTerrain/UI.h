@@ -13,7 +13,7 @@ public:
   bool Initialize(D3D*, int, int);
   void Shutdown();
   bool Frame(ID3D11DeviceContext*, int, float, float, float, float, float, float);
-  bool Render(D3D*, ShaderManager*, const XMMATRIX&, const XMMATRIX&, const XMMATRIX&);
+  bool Render(D3D*, ShaderManager*, const DirectX::XMMATRIX&, const DirectX::XMMATRIX&, const DirectX::XMMATRIX&);
 private:
   Text* m_text;
   Font* m_font;

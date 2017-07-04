@@ -1,5 +1,7 @@
 #include "Zone.h"
 
+using namespace DirectX;
+
 Zone::Zone():
   m_ui(nullptr),
   m_cam(nullptr),
@@ -36,24 +38,25 @@ bool Zone::Initialize(D3D *d3d, HWND hwnd, int width, int height, float depth)
   m_cam->Render();
   m_cam->RenderBaseViewMatrix();
 
-  m_pos = new Position;
-  if (!m_pos) return false;
-
-  m_pos->SetPosition(128.f, 5.f, -10.f);
-  m_pos->SetRotation(0.f, 0.f, 0.f);
-
   m_terrain = new Terrain;
   if (!m_terrain) return false;
 
-  result = m_terrain->Initialize(d3d->GetDevice());
+  result = m_terrain->Initialize(d3d->GetDevice(), "Setup.txt");
   if (!result)
   {
     MessageBox(hwnd, L"Could not initialize terrain", L"Error", MB_OK);
     return false;
   }
 
+  m_pos = new Position;
+  if (!m_pos) return false;
+
+  m_pos->SetPosition(m_terrain->GetTerrainHeight()/2.f, 10.f, -m_terrain->GetTerrainHeight() / 2.f);
+  m_pos->SetRotation(0.f, 0.f, 0.f);
+
   m_displayUI = true;
-  
+  m_wireframeMode = true;
+
   return true;
 }
 
@@ -121,9 +124,10 @@ void Zone::HandleMovementInput(Input *in, float frame_time)
   m_cam->SetRotation(rotx, roty, rotz);
 
   if (in->IsF1Toggled())
-  {
     m_displayUI = !m_displayUI;
-  }
+  
+  if (in->IsF2Toggled())
+    m_wireframeMode = !m_wireframeMode;
 }
 
 bool Zone::Render(D3D *d3d, ShaderManager *sm)
@@ -140,11 +144,17 @@ bool Zone::Render(D3D *d3d, ShaderManager *sm)
 
   d3d->BeginScene(0.f, 0.f, 0.f, 1.f);
 
-  m_terrain->Render(d3d->GetDeviceContext());
-  bool result = sm->RenderColorShader(d3d->GetDeviceContext(), m_terrain->GetIdxCount(), world_mat, view_mat, proj_mat);
+  if (m_wireframeMode)
+    d3d->EnableWireframe();
 
+  m_terrain->Render(d3d->GetDeviceContext());
+  
+  bool result = sm->RenderColorShader(d3d->GetDeviceContext(), m_terrain->GetIdxCount(), world_mat, view_mat, proj_mat);
   if (!result) return false;
 
+  if (m_wireframeMode)
+    d3d->DisableWireframe();
+  
   if (m_displayUI)
   {
     if (!m_ui->Render(d3d, sm, world_mat, baseview_mat, ortho_mat))
