@@ -20,7 +20,6 @@ public:
 private:
   void GenerateFractal();
   void GenerateFractalRecursive(float, int, int, int, int);
-  void ClampTerrainHeight(float&, const float&, const float&);
 
   int m_width;
   int m_maxHeight;

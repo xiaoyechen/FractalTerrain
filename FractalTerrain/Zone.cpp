@@ -157,7 +157,7 @@ bool Zone::Render(D3D *d3d, ShaderManager *sm)
   
   if (m_displayUI)
   {
-    if (!m_ui->Render(d3d, sm, world_mat, baseview_mat, ortho_mat))
+    if (!m_ui->Render(d3d))//, sm, world_mat, baseview_mat, ortho_mat))
       return false;
   }
 

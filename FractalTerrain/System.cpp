@@ -46,7 +46,9 @@ void System::RunMsgLoop(HACCEL & hAccelTable)
   bool done = false;
 
   ZeroMemory(&msg, sizeof(MSG));
-  while (!done && GetMessage(&msg, nullptr, 0, 0))
+
+  // seems like GetMessage makes input processing laggy
+  while (!done /*&& GetMessage(&msg, nullptr, 0, 0)*/)
   {
     if (PeekMessage(&msg, NULL, 0,0, PM_REMOVE) && !TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
     {
