@@ -4,4 +4,8 @@
 
 ![Current preview](Capture.JPG)
 
-Referenced tutorial: http://rastertek.com/tutdx11s2ter.html
+Referenced tutorials: 
+
+  http://rastertek.com/tutdx11s2ter.html
+  
+  https://github.com/Microsoft/DirectXTK/wiki/SpriteFont
