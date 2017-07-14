@@ -18,7 +18,7 @@ bool Text::Initialize(char *label, char *value_default, int position_x, int posi
   // set label string
   char temp_str[16];
   strcpy_s(temp_str, label);
-  strcat_s(temp_str, ": ");
+  strcat_s(temp_str, ":");
   
   size_t label_size = strlen(temp_str) + 1;
 

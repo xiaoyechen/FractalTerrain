@@ -93,7 +93,7 @@ void Camera::RenderBaseViewMatrix()
   rotation_matrix = XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
   lookat_vec = XMVector3TransformCoord(lookat_vec, rotation_matrix);
   up_vec = XMVector3TransformCoord(up_vec, rotation_matrix);
-
+  
   //lookat_vec = pos_vec + lookat_vec;
   lookat_vec = XMVectorAdd(pos_vec, lookat_vec);
   m_baseview_matrix = XMMatrixLookAtLH(pos_vec, lookat_vec, up_vec);

@@ -19,8 +19,8 @@ public:
   void Release();
 private:
   void GenerateFractal();
-  void GenerateFractalRecursive(float, int, int, int, int);
-
+  void CalculateSidepoint(float, int, int, int, int);
+  void CalculateMidpint(float, int, int, int, int);
   int m_width;
   int m_maxHeight;
   float m_roughness;
