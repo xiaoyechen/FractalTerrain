@@ -34,7 +34,7 @@ bool Zone::Initialize(D3D *d3d, HWND hwnd, int width, int height, float depth)
   m_cam = new Camera;
   if (!m_cam) return false;
 
-  m_cam->SetPosition(0.f, 0.f, -10.f);
+  m_cam->SetPosition(0.f, 0.f, 10.f);
   m_cam->Render();
   m_cam->RenderBaseViewMatrix();
 
@@ -51,7 +51,8 @@ bool Zone::Initialize(D3D *d3d, HWND hwnd, int width, int height, float depth)
   m_pos = new Position;
   if (!m_pos) return false;
 
-  m_pos->SetPosition(m_terrain->GetTerrainHeight()/2.f, 10.f, -m_terrain->GetTerrainHeight() / 2.f);
+  float zone_pos = m_terrain->GetTerrainHeight() / 2.f;
+  m_pos->SetPosition(zone_pos, zone_pos/2.f, -zone_pos);
   m_pos->SetRotation(0.f, 0.f, 0.f);
 
   m_displayUI = true;

@@ -6,8 +6,6 @@
 #include "stdafx.h"
 #include "Fractal.h"
 
-#define MAX_HEIGHT_DEFAULT 257
-
 class Terrain
 {
 public:
@@ -36,6 +34,7 @@ private:
   ID3D11Buffer *m_vertexBuffer, *m_idxBuffer;
   int m_vertexCount, m_idxCount;
   int m_terrainHeight, m_terrainWidth;
+  float m_maxRandom;
   float m_heightScale;
   float m_terrainRoughness;
   HeightMap_T* m_heightMap;

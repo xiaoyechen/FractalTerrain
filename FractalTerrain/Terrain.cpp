@@ -175,6 +175,12 @@ bool Terrain::LoadSetupFile(char *setup_filename)
 
   ifs >> m_terrainRoughness;
 
+  ifs.get(input);
+  while (input != ':')
+    ifs.get(input);
+
+  ifs >> m_maxRandom;
+
   ifs.close();
 
   return true;
@@ -183,7 +189,7 @@ bool Terrain::LoadSetupFile(char *setup_filename)
 bool Terrain::LoadHeightMap()
 {
   Fractal fractal_heightmap;
-  if (!fractal_heightmap.Initialize(m_terrainWidth, m_terrainHeight, MAX_HEIGHT_DEFAULT, m_terrainRoughness))
+  if (!fractal_heightmap.Initialize(m_terrainWidth, m_terrainHeight, m_maxRandom, m_terrainRoughness))
     return false;
 
   if (!fractal_heightmap.Generate())

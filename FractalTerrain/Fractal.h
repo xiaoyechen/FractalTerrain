@@ -4,8 +4,6 @@
 #include <time.h>
 #include <math.h>
 
-// determine how the range of generated random numbers is reduced at each iteration
-// a high value results in smooth terrain
 
 class Fractal
 {

@@ -111,8 +111,8 @@ void Fractal::CalculateSidepoint(float max_height, int lt_x, int lt_y, int br_x,
           top_right = (*this)(br_x, lt_y),
           bottom_right = (*this)(br_x, br_y);
 
-    //random_value = (rand() % (2 * (int)max_height * 100) - max_height * 100) / 100.f;
-    float random_value = (rand() % ((int)max_height * 100)) / 100.f;
+    float random_value = (rand() % (2 * (int)max_height * 100) - max_height * 100) / 100.f;
+    //float random_value = (rand() % ((int)max_height * 100)) / 100.f;
 
     // left
     if (lt_x-dist > 0)
@@ -148,17 +148,9 @@ void Fractal::CalculateMidpint(float max_height, int lt_x, int lt_y, int br_x, i
   }
   else
   {
-    int midpoint_x = (lt_x + br_x) / 2;
-    int midpoint_y = (lt_y + br_y) / 2;
+    float random_value = (rand() % (2 * (int)max_height * 100) - max_height * 100) / 100.f;
+    //float random_value = (rand() % ((int)max_height * 100)) / 100.f;
 
-    float top_left = (*this)(lt_x, lt_y),
-      bottom_left = (*this)(lt_x, br_y),
-      top_right = (*this)(br_x, lt_y),
-      bottom_right = (*this)(br_x, br_y);
-
-    float random_value = (rand() % ((int)max_height * 100)) / 100.f;
-
-    // set square array midpoint
-    (*this)(midpoint_x, midpoint_y) = (top_left + bottom_left + bottom_right + top_right) / 4 + random_value;
+    (*this)((lt_x + br_x) / 2, (lt_y + br_y) / 2) = ((*this)(lt_x, lt_y) + (*this)(lt_x, br_y) + (*this)(br_x, lt_y) + (*this)(br_x, br_y)) / 4 + random_value;
   }
 }
