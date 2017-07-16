@@ -111,6 +111,9 @@ void Fractal::CalculateSidepoint(float max_height, int lt_x, int lt_y, int br_x,
           top_right = (*this)(br_x, lt_y),
           bottom_right = (*this)(br_x, br_y);
 
+    if ((int)max_height == 0)
+      max_height = 1;
+
     float random_value = (rand() % (2 * (int)max_height * 100) - max_height * 100) / 100.f;
     //float random_value = (rand() % ((int)max_height * 100)) / 100.f;
 
@@ -148,6 +151,9 @@ void Fractal::CalculateMidpint(float max_height, int lt_x, int lt_y, int br_x, i
   }
   else
   {
+    if ((int)max_height == 0)  
+      max_height = 1;
+    
     float random_value = (rand() % (2 * (int)max_height * 100) - max_height * 100) / 100.f;
     //float random_value = (rand() % ((int)max_height * 100)) / 100.f;
 
