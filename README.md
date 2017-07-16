@@ -8,4 +8,6 @@ Referenced tutorials:
 
   http://rastertek.com/tutdx11s2ter.html
   
-  https://github.com/Microsoft/DirectXTK/wiki/SpriteFont
+  https://github.com/Microsoft/DirectXTK/wiki
+  
+Texture image credit: Textures.com
