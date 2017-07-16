@@ -24,6 +24,9 @@ bool Terrain::Initialize(ID3D11Device *device, char* setup_filename)
 
   SetTerrainCoordinates();
 
+  if (!CalculateNormals())
+    return false;
+
   if (!BuildTerrainModel())
     return false;
 
@@ -82,7 +85,8 @@ bool Terrain::InitializeBuffers(ID3D11Device *device)
   {
     vertices[i].pos = XMFLOAT3(m_terrainModel[i].x, m_terrainModel[i].y, m_terrainModel[i].z);
     //vertices[i].color = color;
-    vertices[i].texture = XMFLOAT2(m_terrainModel[i].tu, m_terrainModel[i].tv);
+    vertices[i].tex = XMFLOAT2(m_terrainModel[i].tu, m_terrainModel[i].tv);
+    vertices[i].norm = XMFLOAT3(m_terrainModel[i].nx, m_terrainModel[i].ny, m_terrainModel[i].nz);
     indices[i] = i;
   }
   
@@ -239,6 +243,107 @@ void Terrain::SetTerrainCoordinates()
   }
 }
 
+bool Terrain::CalculateNormals()
+{
+  Vector_T* normals = new Vector_T[(m_terrainHeight - 1)*(m_terrainWidth - 1)];
+  if (!normals)  return false;
+
+  int i, j, idx, bottom_left, bottom_right, top_left;
+  float u[3], v[3], magnitude;
+
+  // calculate normals for each 
+  for (j = 0; j < m_terrainHeight - 1; ++j)
+  {
+    for (i = 0; i < m_terrainWidth - 1; ++i)
+    {
+      bottom_left = (j + 1)*m_terrainHeight + i;
+      bottom_right = (j + 1)*m_terrainHeight + (i + 1);
+      top_left = j*m_terrainHeight + i;
+
+      u[0] = m_heightMap[bottom_left].x - m_heightMap[top_left].x;
+      u[1] = m_heightMap[bottom_left].y - m_heightMap[top_left].y;
+      u[2] = m_heightMap[bottom_left].z - m_heightMap[top_left].z;
+
+      v[0] = m_heightMap[top_left].x - m_heightMap[bottom_right].x;
+      v[1] = m_heightMap[top_left].y - m_heightMap[bottom_right].y;
+      v[2] = m_heightMap[top_left].z - m_heightMap[bottom_right].z;
+
+      // u X v to get normal
+      idx = j*(m_terrainWidth - 1) + i;
+      normals[idx].x = u[1] * v[2] - u[2] * v[1];
+      normals[idx].y = u[2] * v[0] - u[0] * v[2];
+      normals[idx].z = u[0] * v[1] - u[1] * v[0];
+
+      // normalize normal
+      magnitude = sqrt(normals[idx].x*normals[idx].x + normals[idx].y*normals[idx].y + normals[idx].z*normals[idx].z);
+      normals[idx].x /= magnitude;
+      normals[idx].y /= magnitude;
+      normals[idx].z /= magnitude;
+    }
+  }
+
+  // calculate shared normals
+  float sum[3];
+  for (j = 0; j < m_terrainHeight; ++j)
+  {
+    for (i = 0; i < m_terrainWidth; ++i)
+    {
+      sum[0] = 0.f;
+      sum[1] = 0.f;
+      sum[2] = 0.f;
+
+      // bottom left - check if it's top left corner
+      if (i - 1 >= 0 && j - 1 >= 0)
+      {
+        idx = (j - 1)*(m_terrainWidth-1)+(i - 1);
+        sum[0] += normals[idx].x;
+        sum[1] += normals[idx].y;
+        sum[2] += normals[idx].z;
+      }
+
+      // bottom right - check if it's top right corner
+      if (i < m_terrainWidth - 1 && j - 1 >= 0)
+      {
+        idx = (j - 1)*(m_terrainWidth-1) + i;
+        sum[0] += normals[idx].x;
+        sum[1] += normals[idx].y;
+        sum[2] += normals[idx].z;
+      }
+
+      // top left - check if it's bottom left corner
+      if (i - 1 >= 0 && j < m_terrainHeight - 1)
+      {
+        idx = j*(m_terrainWidth-1) + i-1;
+        sum[0] += normals[idx].x;
+        sum[1] += normals[idx].y;
+        sum[2] += normals[idx].z;
+      }
+
+      // top right - check if it's bottom right corner
+      if (i < m_terrainWidth - 1 && j < m_terrainHeight - 1)
+      {
+        idx = j*(m_terrainWidth - 1) + i;
+        sum[0] += normals[idx].x;
+        sum[1] += normals[idx].y;
+        sum[2] += normals[idx].z;
+      }
+
+      magnitude = (float)sqrt(sum[0] * sum[0] + sum[1] * sum[1] + sum[2] * sum[2]);
+
+      // final shared normal
+      idx = j*m_terrainWidth + i;
+      m_heightMap[idx].nx = sum[0] / magnitude;
+      m_heightMap[idx].ny = sum[1] / magnitude;
+      m_heightMap[idx].nz = sum[2] / magnitude;
+    }
+  }
+
+  delete[] normals;
+  normals = 0;
+
+  return true;
+}
+
 bool Terrain::BuildTerrainModel()
 {
   m_vertexCount = (m_terrainWidth - 1) * (m_terrainHeight - 1) * 6;
@@ -264,6 +369,9 @@ bool Terrain::BuildTerrainModel()
       m_terrainModel[idx].z = m_heightMap[top_left].z;
       m_terrainModel[idx].tu = 0.f;
       m_terrainModel[idx].tv = 0.f;
+      m_terrainModel[idx].nx = m_heightMap[top_left].nx;
+      m_terrainModel[idx].ny = m_heightMap[top_left].ny;
+      m_terrainModel[idx].nz = m_heightMap[top_left].nz;
       ++idx;
 
       m_terrainModel[idx].x = m_heightMap[top_right].x;
@@ -271,6 +379,9 @@ bool Terrain::BuildTerrainModel()
       m_terrainModel[idx].z = m_heightMap[top_right].z;
       m_terrainModel[idx].tu = 1.f;
       m_terrainModel[idx].tv = 0.f;
+      m_terrainModel[idx].nx = m_heightMap[top_right].nx;
+      m_terrainModel[idx].ny = m_heightMap[top_right].ny;
+      m_terrainModel[idx].nz = m_heightMap[top_right].nz;
       ++idx;
 
       m_terrainModel[idx].x = m_heightMap[bottom_left].x;
@@ -278,6 +389,9 @@ bool Terrain::BuildTerrainModel()
       m_terrainModel[idx].z = m_heightMap[bottom_left].z;
       m_terrainModel[idx].tu = 0.f;
       m_terrainModel[idx].tv = 1.f;
+      m_terrainModel[idx].nx = m_heightMap[bottom_left].nx;
+      m_terrainModel[idx].ny = m_heightMap[bottom_left].ny;
+      m_terrainModel[idx].nz = m_heightMap[bottom_left].nz;
       ++idx;
 
       // triangle2
@@ -286,6 +400,9 @@ bool Terrain::BuildTerrainModel()
       m_terrainModel[idx].z = m_heightMap[bottom_left].z;
       m_terrainModel[idx].tu = 0.f;
       m_terrainModel[idx].tv = 1.f;
+      m_terrainModel[idx].nx = m_heightMap[bottom_left].nx;
+      m_terrainModel[idx].ny = m_heightMap[bottom_left].ny;
+      m_terrainModel[idx].nz = m_heightMap[bottom_left].nz;
       ++idx;
 
       m_terrainModel[idx].x = m_heightMap[top_right].x;
@@ -293,6 +410,9 @@ bool Terrain::BuildTerrainModel()
       m_terrainModel[idx].z = m_heightMap[top_right].z;
       m_terrainModel[idx].tu = 1.f;
       m_terrainModel[idx].tv = 0.f;
+      m_terrainModel[idx].nx = m_heightMap[top_right].nx;
+      m_terrainModel[idx].ny = m_heightMap[top_right].ny;
+      m_terrainModel[idx].nz = m_heightMap[top_right].nz;
       ++idx;
 
       m_terrainModel[idx].x = m_heightMap[bottom_right].x;
@@ -300,6 +420,9 @@ bool Terrain::BuildTerrainModel()
       m_terrainModel[idx].z = m_heightMap[bottom_right].z;
       m_terrainModel[idx].tu = 1.f;
       m_terrainModel[idx].tv = 1.f;
+      m_terrainModel[idx].nx = m_heightMap[bottom_right].nx;
+      m_terrainModel[idx].ny = m_heightMap[bottom_right].ny;
+      m_terrainModel[idx].nz = m_heightMap[bottom_right].nz;
       ++idx;
     }
   }

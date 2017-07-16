@@ -1,0 +1,32 @@
+// globals
+Texture2D shader_texture;
+SamplerState sample_type;
+
+cbuffer LightBuffer
+{
+  float4 diffuse;
+  float3 direction;
+  float padding;
+};
+struct PixelInputType
+{
+  float4 position: SV_POSITION;
+  float2 tex: TEXCOORD0;
+  float3 normal: NORMAL;
+};
+
+float4 LightPixelShader(PixelInputType input): SV_TARGET
+{
+  // sample the pixel color from texture using sample at texture coordinate location
+  float4 texture_color = shader_texture.Sample(sample_type, input.tex);
+  
+  // calculate light intensity base on the angle between face normal and light direction reversed
+  float3 light_direction = -direction;
+  float light_intensity = saturate(dot(input.normal, light_direction));
+  
+  float4 color = saturate(diffuse*light_intensity);
+  
+  color *= texture_color;
+
+  return color;
+}

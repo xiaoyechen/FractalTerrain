@@ -12,6 +12,7 @@ Terrain processing
 #include "Camera.h"
 #include "Position.h"
 #include "Terrain.h"
+#include "Light.h"
 
 class Zone
 {
@@ -30,6 +31,7 @@ private:
   Camera* m_cam;
   Position* m_pos;
   Terrain* m_terrain;
+  Light* m_light;
   bool m_displayUI, m_wireframeMode;
 };
 

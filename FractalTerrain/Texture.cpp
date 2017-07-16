@@ -15,13 +15,6 @@ Texture::~Texture()
 
 bool Texture::Initialize(ID3D11Device *device, ID3D11DeviceContext* device_context, WCHAR *filename)
 {
-  /*wchar_t* filename_wchar;
-
-  size_t newsize = strlen(filename) + 1;
-  size_t converted_chars = 0;
-
-  mbstowcs_s(&converted_chars, filename_wchar, newsize, filename, _TRUNCATE);
-  */
   HRESULT hr = CreateDDSTextureFromFile(device, filename, nullptr, &m_textureView, 0);
 
   if (FAILED(hr))

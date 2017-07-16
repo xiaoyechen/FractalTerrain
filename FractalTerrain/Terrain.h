@@ -21,16 +21,23 @@ private:
   struct Vertex_T
   {
     DirectX::XMFLOAT3 pos;
-    DirectX::XMFLOAT2 texture;
+    DirectX::XMFLOAT2 tex;
+    DirectX::XMFLOAT3 norm;
   };
   struct HeightMap_T
   {
     float x, y, z;
+    float nx, ny, nz;
   };
   struct Model_T
   {
     float x, y, z;
     float tu, tv;
+    float nx, ny, nz;
+  };
+  struct Vector_T
+  {
+    float x, y, z;
   };
   ID3D11Buffer *m_vertexBuffer, *m_idxBuffer;
   int m_vertexCount, m_idxCount;
@@ -48,6 +55,7 @@ private:
   bool LoadHeightMap();
   void ShutdownHeightMap();
   void SetTerrainCoordinates();
+  bool CalculateNormals();
   bool BuildTerrainModel();
   void ShutdownTerrainModel();
 };

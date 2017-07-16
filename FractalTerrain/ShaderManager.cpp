@@ -4,7 +4,8 @@ using namespace DirectX;
 
 ShaderManager::ShaderManager():
   m_colorShader(nullptr),
-  m_textureShader(nullptr)
+  m_textureShader(nullptr),
+  m_lightShader(nullptr)
 {
 }
 
@@ -27,6 +28,12 @@ bool ShaderManager::Initialize(ID3D11Device *device, HWND hwnd)
   if (!m_textureShader->Initialize(device, hwnd))
     return false;
 
+  m_lightShader = new LightShader;
+  if (!m_lightShader) return false;
+
+  if (!m_lightShader->Initialize(device, hwnd))
+    return false;
+
   return true;
 }
 
@@ -40,9 +47,15 @@ bool ShaderManager::RenderTextureShader(ID3D11DeviceContext *device_context, int
   return m_textureShader->Render(device_context, idx_count, world_mat, view_mat, proj_mat, texture);
 }
 
+bool ShaderManager::RenderLightShader(ID3D11DeviceContext *device_context, int idx_count, XMMATRIX &world_mat, XMMATRIX &view_mat, XMMATRIX &proj_mat, ID3D11ShaderResourceView *texture, XMFLOAT3 light_direction, XMFLOAT4 diffuse_color)
+{
+  return m_lightShader->Render(device_context, idx_count, world_mat, view_mat, proj_mat, texture, light_direction, diffuse_color);
+}
+
 
 void ShaderManager::Shutdown()
 {
   SafeShutdown(m_colorShader);
   SafeShutdown(m_textureShader);
+  SafeShutdown(m_lightShader);
 }

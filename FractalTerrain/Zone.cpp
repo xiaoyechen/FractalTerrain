@@ -6,7 +6,8 @@ Zone::Zone():
   m_ui(nullptr),
   m_cam(nullptr),
   m_pos(nullptr),
-  m_terrain(nullptr)
+  m_terrain(nullptr),
+  m_light(nullptr)
 {
 }
 
@@ -55,6 +56,12 @@ bool Zone::Initialize(D3D *d3d, HWND hwnd, int width, int height, float depth)
   m_pos->SetPosition(zone_pos, zone_pos/2.f, -zone_pos);
   m_pos->SetRotation(0.f, 0.f, 0.f);
 
+  m_light = new Light;
+  if (!m_light) return false;
+
+  m_light->SetDiffuseColor(1.f, 1.f, 1.f, 1.f);
+  m_light->SetDirection(-.5f, -1.f, -.5f);
+
   m_displayUI = true;
   m_wireframeMode = true;
 
@@ -66,6 +73,7 @@ void Zone::Shutdown()
   SafeDelete(m_terrain);
   SafeDelete(m_pos);
   SafeDelete(m_cam);
+  SafeDelete(m_light);
   SafeShutdown(m_ui);
 }
 
@@ -151,7 +159,8 @@ bool Zone::Render(D3D *d3d, ShaderManager *sm, TextureManager* tm)
   m_terrain->Render(d3d->GetDeviceContext());
   
   //bool result = sm->RenderColorShader(d3d->GetDeviceContext(), m_terrain->GetIdxCount(), world_mat, view_mat, proj_mat);
-  bool result = sm->RenderTextureShader(d3d->GetDeviceContext(), m_terrain->GetIdxCount(), world_mat, view_mat, proj_mat, tm->GetTexture(1));
+  //bool result = sm->RenderTextureShader(d3d->GetDeviceContext(), m_terrain->GetIdxCount(), world_mat, view_mat, proj_mat, tm->GetTexture(1));
+  bool result = sm->RenderLightShader(d3d->GetDeviceContext(), m_terrain->GetIdxCount(), world_mat, view_mat, proj_mat, tm->GetTexture(1), m_light->GetDirection(), m_light->GetDiffuseColor());
   if (!result) return false;
 
   if (m_wireframeMode)
