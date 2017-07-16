@@ -81,7 +81,8 @@ bool Terrain::InitializeBuffers(ID3D11Device *device)
   for (int i = 0; i < m_vertexCount; ++i)
   {
     vertices[i].pos = XMFLOAT3(m_terrainModel[i].x, m_terrainModel[i].y, m_terrainModel[i].z);
-    vertices[i].color = color;
+    //vertices[i].color = color;
+    vertices[i].texture = XMFLOAT2(m_terrainModel[i].tu, m_terrainModel[i].tv);
     indices[i] = i;
   }
   
@@ -261,32 +262,44 @@ bool Terrain::BuildTerrainModel()
       m_terrainModel[idx].x = m_heightMap[top_left].x;
       m_terrainModel[idx].y = m_heightMap[top_left].y;
       m_terrainModel[idx].z = m_heightMap[top_left].z;
+      m_terrainModel[idx].tu = 0.f;
+      m_terrainModel[idx].tv = 0.f;
       ++idx;
 
       m_terrainModel[idx].x = m_heightMap[top_right].x;
       m_terrainModel[idx].y = m_heightMap[top_right].y;
       m_terrainModel[idx].z = m_heightMap[top_right].z;
+      m_terrainModel[idx].tu = 1.f;
+      m_terrainModel[idx].tv = 0.f;
       ++idx;
 
       m_terrainModel[idx].x = m_heightMap[bottom_left].x;
       m_terrainModel[idx].y = m_heightMap[bottom_left].y;
       m_terrainModel[idx].z = m_heightMap[bottom_left].z;
+      m_terrainModel[idx].tu = 0.f;
+      m_terrainModel[idx].tv = 1.f;
       ++idx;
 
       // triangle2
       m_terrainModel[idx].x = m_heightMap[bottom_left].x;
       m_terrainModel[idx].y = m_heightMap[bottom_left].y;
       m_terrainModel[idx].z = m_heightMap[bottom_left].z;
+      m_terrainModel[idx].tu = 0.f;
+      m_terrainModel[idx].tv = 1.f;
       ++idx;
 
       m_terrainModel[idx].x = m_heightMap[top_right].x;
       m_terrainModel[idx].y = m_heightMap[top_right].y;
       m_terrainModel[idx].z = m_heightMap[top_right].z;
+      m_terrainModel[idx].tu = 1.f;
+      m_terrainModel[idx].tv = 0.f;
       ++idx;
 
       m_terrainModel[idx].x = m_heightMap[bottom_right].x;
       m_terrainModel[idx].y = m_heightMap[bottom_right].y;
       m_terrainModel[idx].z = m_heightMap[bottom_right].z;
+      m_terrainModel[idx].tu = 1.f;
+      m_terrainModel[idx].tv = 1.f;
       ++idx;
     }
   }

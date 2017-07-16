@@ -21,7 +21,7 @@ private:
   struct Vertex_T
   {
     DirectX::XMFLOAT3 pos;
-    DirectX::XMFLOAT4 color;
+    DirectX::XMFLOAT2 texture;
   };
   struct HeightMap_T
   {
@@ -30,6 +30,7 @@ private:
   struct Model_T
   {
     float x, y, z;
+    float tu, tv;
   };
   ID3D11Buffer *m_vertexBuffer, *m_idxBuffer;
   int m_vertexCount, m_idxCount;

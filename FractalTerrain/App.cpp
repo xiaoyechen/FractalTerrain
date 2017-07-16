@@ -1,11 +1,11 @@
 #include "App.h"
 
 
-
 App::App():
   m_in(nullptr),
   m_d3d(nullptr),
   m_shaderManager(nullptr),
+  m_textureManager(nullptr),
   m_timer(nullptr),
   m_fps(nullptr),
   m_zone(nullptr)
@@ -60,6 +60,23 @@ bool App::Initialize(HINSTANCE hInst, HWND hwnd, int width, int height)
     return false;
   }
 
+  // create texture manager
+  m_textureManager = new TextureManager;
+  if (!m_textureManager) return false;
+
+  result = m_textureManager->Initialize(2);
+  if (!result)
+  {
+    MessageBox(hwnd, L"Could not initialize texture manager object.", L"Error", MB_OK);
+    return false;
+  }
+
+  result = m_textureManager->LoadTexture(m_d3d->GetDevice(), m_d3d->GetDeviceContext(), L"test_tex.DDS", 0);
+  if (!result) return false;
+
+  result = m_textureManager->LoadTexture(m_d3d->GetDevice(), m_d3d->GetDeviceContext(), L"TexturesCom_Groundplants0022_1_seamless_S512.DDS", 1);
+  if (!result) return false;
+
   // create timer
   m_timer = new Timer;
   if (!m_timer) return false;
@@ -96,6 +113,7 @@ void App::Shutdown()
   SafeShutdown(m_zone);
   SafeDelete(m_fps);
   SafeDelete(m_timer);
+  SafeShutdown(m_textureManager);
   SafeShutdown(m_shaderManager);
   SafeShutdown(m_d3d);
   SafeShutdown(m_in);
@@ -112,7 +130,7 @@ bool App::Frame()
   if (m_in->IsEscapePressed()) 
     return false;
 
-  if (!m_zone->Frame(m_d3d, m_in, m_shaderManager, m_timer->GetTime(), m_fps->GetFps()))
+  if (!m_zone->Frame(m_d3d, m_in, m_shaderManager, m_textureManager, m_timer->GetTime(), m_fps->GetFps()))
     return false;
 
   return true;

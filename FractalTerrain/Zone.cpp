@@ -69,7 +69,7 @@ void Zone::Shutdown()
   SafeShutdown(m_ui);
 }
 
-bool Zone::Frame(D3D *d3d, Input *in, ShaderManager *shader_manager, float frame_time, int fps)
+bool Zone::Frame(D3D *d3d, Input *in, ShaderManager *shader_manager, TextureManager* texture_manager, float frame_time, int fps)
 {
   float posx, posy, posz, rotx, roty, rotz;
 
@@ -82,7 +82,7 @@ bool Zone::Frame(D3D *d3d, Input *in, ShaderManager *shader_manager, float frame
 
   if (!result) return false;
 
-  result = Render(d3d, shader_manager);
+  result = Render(d3d, shader_manager, texture_manager);
 
   return result;
 }
@@ -131,7 +131,7 @@ void Zone::HandleMovementInput(Input *in, float frame_time)
     m_wireframeMode = !m_wireframeMode;
 }
 
-bool Zone::Render(D3D *d3d, ShaderManager *sm)
+bool Zone::Render(D3D *d3d, ShaderManager *sm, TextureManager* tm)
 {
   XMMATRIX world_mat, view_mat, proj_mat, baseview_mat, ortho_mat;
 
@@ -150,7 +150,8 @@ bool Zone::Render(D3D *d3d, ShaderManager *sm)
 
   m_terrain->Render(d3d->GetDeviceContext());
   
-  bool result = sm->RenderColorShader(d3d->GetDeviceContext(), m_terrain->GetIdxCount(), world_mat, view_mat, proj_mat);
+  //bool result = sm->RenderColorShader(d3d->GetDeviceContext(), m_terrain->GetIdxCount(), world_mat, view_mat, proj_mat);
+  bool result = sm->RenderTextureShader(d3d->GetDeviceContext(), m_terrain->GetIdxCount(), world_mat, view_mat, proj_mat, tm->GetTexture(1));
   if (!result) return false;
 
   if (m_wireframeMode)
