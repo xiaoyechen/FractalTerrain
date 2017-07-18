@@ -1,5 +1,5 @@
 Terrain Height: 129
 Terrain Width: 129
 Terrain Scaling: 12.0
-Terrain Roughness: 0.95
+Terrain Roughness: 0.8
 Max Random Height: 250.0

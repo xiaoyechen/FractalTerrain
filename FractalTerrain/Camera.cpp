@@ -99,6 +99,11 @@ void Camera::RenderBaseViewMatrix()
   m_baseview_matrix = XMMatrixLookAtLH(pos_vec, lookat_vec, up_vec);
 }
 
+DirectX::XMFLOAT3 Camera::GetPosition()
+{
+  return XMFLOAT3(m_posx, m_posy, m_posz);
+}
+
 void Camera::GetViewMatrix(XMMATRIX &mat)
 {
   mat = m_view_matrix;

@@ -60,7 +60,10 @@ bool Zone::Initialize(D3D *d3d, HWND hwnd, int width, int height, float depth)
   if (!m_light) return false;
 
   m_light->SetDiffuseColor(1.f, 1.f, 1.f, 1.f);
-  m_light->SetDirection(-.5f, -1.f, -.5f);
+  m_light->SetAmbientColor(.15f, .15f, .15f, 1.f);
+  m_light->SetSpecularColor(1.f, 1.f, 1.f, 1.f);
+  m_light->SetDirection(-.5f, 0.f, .5f);
+  m_light->SetSpecularPower(.5f);
 
   m_displayUI = true;
   m_wireframeMode = true;
@@ -160,7 +163,7 @@ bool Zone::Render(D3D *d3d, ShaderManager *sm, TextureManager* tm)
   
   //bool result = sm->RenderColorShader(d3d->GetDeviceContext(), m_terrain->GetIdxCount(), world_mat, view_mat, proj_mat);
   //bool result = sm->RenderTextureShader(d3d->GetDeviceContext(), m_terrain->GetIdxCount(), world_mat, view_mat, proj_mat, tm->GetTexture(1));
-  bool result = sm->RenderLightShader(d3d->GetDeviceContext(), m_terrain->GetIdxCount(), world_mat, view_mat, proj_mat, tm->GetTexture(1), m_light->GetDirection(), m_light->GetDiffuseColor());
+  bool result = sm->RenderLightShader(d3d->GetDeviceContext(), m_terrain->GetIdxCount(), world_mat, view_mat, proj_mat, tm->GetTexture(1), m_light->GetDirection(), m_light->GetDiffuseColor(), m_light->GetAmbientColor(), m_cam->GetPosition(), m_light->GetSpecularColor(), m_light->GetSpecularPower());
   if (!result) return false;
 
   if (m_wireframeMode)

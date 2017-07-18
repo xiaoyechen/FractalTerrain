@@ -12,6 +12,7 @@ public:
   void SetRotation(float, float, float);
   void Render();
   void RenderBaseViewMatrix();
+  DirectX::XMFLOAT3 GetPosition();
   void GetViewMatrix(DirectX::XMMATRIX&);
   void GetBaseViewMatrix(DirectX::XMMATRIX&);
 private:

@@ -47,9 +47,9 @@ bool ShaderManager::RenderTextureShader(ID3D11DeviceContext *device_context, int
   return m_textureShader->Render(device_context, idx_count, world_mat, view_mat, proj_mat, texture);
 }
 
-bool ShaderManager::RenderLightShader(ID3D11DeviceContext *device_context, int idx_count, XMMATRIX &world_mat, XMMATRIX &view_mat, XMMATRIX &proj_mat, ID3D11ShaderResourceView *texture, XMFLOAT3 light_direction, XMFLOAT4 diffuse_color)
+bool ShaderManager::RenderLightShader(ID3D11DeviceContext *device_context, int idx_count, XMMATRIX &world_mat, XMMATRIX &view_mat, XMMATRIX &proj_mat, ID3D11ShaderResourceView *texture, XMFLOAT3 light_direction, XMFLOAT4 diffuse_color, XMFLOAT4 ambient_color, XMFLOAT3 camera_pos, XMFLOAT4 specular_color, float spec_power)
 {
-  return m_lightShader->Render(device_context, idx_count, world_mat, view_mat, proj_mat, texture, light_direction, diffuse_color);
+  return m_lightShader->Render(device_context, idx_count, world_mat, view_mat, proj_mat, texture, light_direction, diffuse_color, ambient_color, camera_pos, specular_color, spec_power);
 }
 
 

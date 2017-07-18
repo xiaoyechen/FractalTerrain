@@ -12,12 +12,12 @@ public:
   ~LightShader();
   bool Initialize(ID3D11Device*, HWND);
   void Shutdown();
-  bool Render(ID3D11DeviceContext*, int, DirectX::XMMATRIX&, DirectX::XMMATRIX&, DirectX::XMMATRIX&, ID3D11ShaderResourceView*, DirectX::XMFLOAT3, DirectX::XMFLOAT4);
+  bool Render(ID3D11DeviceContext*, int, DirectX::XMMATRIX&, DirectX::XMMATRIX&, DirectX::XMMATRIX&, ID3D11ShaderResourceView*, DirectX::XMFLOAT3, DirectX::XMFLOAT4, DirectX::XMFLOAT4, DirectX::XMFLOAT3, DirectX::XMFLOAT4, float);
 private:
   bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
   void ShutdownShader();
   void OutputShaderError(ID3D10Blob*, HWND, WCHAR*);
-  bool SetShaderParams(ID3D11DeviceContext*, DirectX::XMMATRIX&, DirectX::XMMATRIX&, DirectX::XMMATRIX&, ID3D11ShaderResourceView*, DirectX::XMFLOAT3, DirectX::XMFLOAT4);
+  bool SetShaderParams(ID3D11DeviceContext*, DirectX::XMMATRIX&, DirectX::XMMATRIX&, DirectX::XMMATRIX&, ID3D11ShaderResourceView*, DirectX::XMFLOAT3, DirectX::XMFLOAT4, DirectX::XMFLOAT4,DirectX::XMFLOAT3, DirectX::XMFLOAT4, float);
   void RenderShader(ID3D11DeviceContext*, int);
 
   ID3D11VertexShader* m_vertexShader;
@@ -26,6 +26,7 @@ private:
   ID3D11Buffer* m_matrixBuffer;
   ID3D11SamplerState* m_sampleState;
   ID3D11Buffer* m_lightBuffer;
+  ID3D11Buffer* m_cameraBuffer;
 
   struct MatrixBuffer_T
   {
@@ -34,8 +35,15 @@ private:
   struct LightBuffer_T
   {
     DirectX::XMFLOAT4 diffuse;
+    DirectX::XMFLOAT4 ambient;
+    DirectX::XMFLOAT4 specular;
     DirectX::XMFLOAT3 direction;
-    float padding; // make the type a multiple of 16 bytes
+    float specular_power;
+  };
+  struct CameraBuffer_T
+  {
+    DirectX::XMFLOAT3 camera_position;
+    float padding;
   };
 };
 

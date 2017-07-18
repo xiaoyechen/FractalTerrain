@@ -5,18 +5,25 @@ SamplerState sample_type;
 cbuffer LightBuffer
 {
   float4 diffuse;
+  float4 ambient;
+  float4 specular;
   float3 direction;
   float padding;
+  float specular_power;
 };
 struct PixelInputType
 {
   float4 position: SV_POSITION;
   float2 tex: TEXCOORD0;
   float3 normal: NORMAL;
+  float3 view_direction: TEXCOORD1;
 };
 
 float4 LightPixelShader(PixelInputType input): SV_TARGET
 {
+  float4 color = ambient;
+  float4 spec_color = float4(0.f, 0.f, 0.f, 0.f);
+
   // sample the pixel color from texture using sample at texture coordinate location
   float4 texture_color = shader_texture.Sample(sample_type, input.tex);
   
@@ -24,9 +31,21 @@ float4 LightPixelShader(PixelInputType input): SV_TARGET
   float3 light_direction = -direction;
   float light_intensity = saturate(dot(input.normal, light_direction));
   
-  float4 color = saturate(diffuse*light_intensity);
-  
+  if (light_intensity > 0.f)
+  {
+    color += diffuse*light_intensity;
+
+    color = saturate(color);
+
+    float3 reflection = normalize(2*light_intensity*input.normal-light_direction);
+
+    spec_color = pow(saturate(dot(reflection, input.view_direction)), specular_power);
+  }
+
   color *= texture_color;
+
+  // clip color if color > 1
+  color = saturate(color + spec_color);
 
   return color;
 }
